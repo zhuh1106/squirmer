@@ -76,6 +76,7 @@ end
 s.sp = abs(s.xp); s.tang = s.xp./s.sp; s.nx = -1i*s.tang;
 s.cur = -real(conj(s.xpp).*s.nx)./s.sp.^2;
 s.ws = s.w.*s.sp; % speed weights
+s.w = s.ws;
 s.t = t; s.wxp = s.w.*s.xp; % complex speed weights (Helsing's wzp)
 end
 

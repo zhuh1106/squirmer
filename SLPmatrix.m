@@ -3,6 +3,7 @@ function [A,T] = SLPmatrix(t,s,mu,a) % single-layer 2D Stokes kernel vel matrix
 % t = target seg (x cols), s = src seg, a = optional translation of src seg
 % No option for self-int, gives Inf on diag.   3/2/14
 % 2nd output is traction matrix, needs t.nx normal (C-#); no self-int either.
+% depends on quad function you choose, use this carefully, w, or ws. -- Hai
 
 if nargin==0&&nargout==0
     STR=dbstack;

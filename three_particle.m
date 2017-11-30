@@ -6,8 +6,8 @@ close all
 addpath(genpath('.')) % adds subdirectories to path
 warning off % turns off warning from gmres
 
-N1 = 400;
-N2 = 400;
+N1 = 300;
+N2 = 300;
 N3 = 300;
 dt = 0.05;
 theta1 = 0; theta2 = 0;
@@ -71,6 +71,7 @@ for tt = 1:25
         for j = 1:numOfP
             if (i==j)
                 [Asisj,~] = stokesselfevalm(s{i}, s{j}, N1, 's', 'e', 'C');
+%                 Asisj = SLPselfmatrix(s{i});
             else
                 Asisj = SLPmatrix2(s{i},s{j});
             end

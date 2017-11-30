@@ -1,11 +1,14 @@
-function s = squirmer_solver(s ,beta, dt)
+function [s, mu]= squirmer_solver(s ,beta, dt, uInf,qtype,amp,numOfP)
 % solve for rigid body translational velocity and angular velocity
 % input 's' is a cell array of structures
+% 'uInf' is a cell array of structures with attributes:
+%       .ug, background velocity
+%       .pg, background pressure
 %       'numOfQ' is total number of quadrature points
 %       'numOfP' is number of squirmers
 
 %% number of squirmers and quadrature points
-numOfP = numel(s);
+% numOfP = numel(s);
 numOfQ = 0;
 for i = 1:numOfP
     numOfQ = numOfQ + s{i}.n;
@@ -18,7 +21,11 @@ for i = 1:numOfP
     incr_j = 0;
     for j = 1:numOfP
         if (i==j)
-            [Asisj,~] = stokesselfevalm(s{i}, s{j}, s{j}.n, 's', 'e', 'C');
+            if qtype=='g'
+                Asisj = SLPselfmatrix(s{i});
+            else
+                [Asisj,~] = stokesselfevalm(s{i}, s{j}, s{j}.n, 's', 'e', 'C');
+            end
         else
             Asisj = SLPmatrix2(s{i},s{j});
         end
@@ -58,13 +65,15 @@ A = [As,B;C,Q];
 rhs = zeros(2*numOfQ+3*numOfP,1);
 incr_i = 0;
 for i = 1:numOfP
-    rhs(incr_i+1:incr_i+2*s{i}.n) = 20*[sin(s{i}.t)+beta*sin(2*s{i}.t);...
-        sin(s{i}.t)+beta*sin(2*s{i}.t)].*[real(s{i}.tang);imag(s{i}.tang)];
+    rhs(incr_i+1:incr_i+2*s{i}.n) = amp*[sin(s{i}.t)+beta*sin(2*s{i}.t);...
+        sin(s{i}.t)+beta*sin(2*s{i}.t)].*[real(s{i}.tang);imag(s{i}.tang)]...
+        -uInf{i}.ug;    % modify right hand side based on background velocity
     incr_i = incr_i + 2*s{i}.n;
 end
 
 %% solve for rigid body velocity
 soln = (C*(As\B))\(C*(As\rhs(1:end-3*numOfP)));
+mu = As\(rhs(1:end-3*numOfP)-B*soln);
 
 
 %% update position and evolve one step in time
